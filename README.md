@@ -351,9 +351,9 @@ GitHub repository
 
 https://github.com/Dhanushini-S21/Adaptive-Layout-Engine
 
-Optional:
+Deployed:
 
-A deployed demo can be provided for faster review.
+https://adaptive-layout-two.vercel.app/
 
 
 ## AI Disclosure
