@@ -1,38 +1,27 @@
-Adaptive Layout Engine for Multi-Surface Ads
+# Adaptive Layout Engine for Multi-Surface Ads
 
-Overview
+## Overview
 
 This project implements a constraint-based adaptive layout engine for advertisements.
 
 The engine accepts one declarative advertisement specification and a surface profile containing real constraints. It resolves the advertisement into a valid layout for that surface and renders the result using the DOM.
 
-The same advertisement is adapted to:
-
-Mobile portrait
-
-Mobile landscape
-
-Broadcast lower-third
-
-Square retail kiosk
+The same advertisement is adapted to Mobile Portrait, Mobile Landscape, Broadcast Lower Third, and Square Retail Kiosk.
 
 The TypeScript resolver calculates the layout. Separate hardcoded layouts and CSS breakpoints are not used as the layout engine.
 
-Setup Instructions
+## Setup Instructions
 
-Prerequisites
+Prerequisites:
+- Node.js 18+
+- npm
+- Git
 
-Node.js 18+
-
-npm
-
-Git
-
-Install
+Install dependencies:
 
 npm install
 
-Run the demo
+Run the demo:
 
 npm run dev
 
@@ -40,81 +29,67 @@ Open the local URL shown by Vite, normally:
 
 http://localhost:5173
 
-Production build
+Production build:
 
 npm run build
 npm run preview
 
-How to Run the Demo and Switch Surfaces
+## How to Run the Demo and Switch Surfaces
 
 Use the Surface selector in the demo and switch between:
 
-Mobile Portrait
-
-Mobile Landscape
-
-Broadcast Lower Third
-
-Square Retail Kiosk
+1. Mobile Portrait
+2. Mobile Landscape
+3. Broadcast Lower Third
+4. Square Retail Kiosk
 
 The same adSpec is passed to the resolver each time.
 
-Ad Spec + Surface Profile
-          |
-          v
-Constraint Resolver
-          |
-          v
-Resolved Layout
-          |
-          v
-DOM Renderer
+Ad Spec + Surface Profile → Constraint Resolver → Resolved Layout → DOM Renderer
 
 The layout changes because the available geometry and constraints change. The system therefore re-composes the advertisement instead of simply scaling one layout.
 
 A compact stress-test surface is also included to demonstrate degradation when available space is limited.
 
-Layout Algorithm
+## Layout Algorithm
 
-The core implementation is in src/resolver.ts.
+The core implementation is in:
+
+src/resolver.ts
 
 The resolver uses a priority-ordered, greedy constraint-resolution approach.
 
-Step 1 — Read the advertisement specification
+### Step 1 — Read the advertisement specification
 
-The advertisement is defined once in src/spec.ts.
+The advertisement is defined once in:
+
+src/spec.ts
 
 Example elements:
 
-Headline       priority 1
-Product image  priority 1
-CTA            priority 2
-Price          priority 2
-Logo           priority 3
+Headline — priority 1
+Product image — priority 1
+CTA — priority 2
+Price — priority 2
+Logo — priority 3
 
 Lower numbers represent higher priority.
 
-Step 2 — Read the surface profile
+### Step 2 — Read the surface profile
 
 The resolver receives:
 
-width
-
-height
-
-safe area
-
-minimum tap target
-
-minimum text size
-
-viewing distance
-
-touch-only constraints
+- Width
+- Height
+- Safe area
+- Minimum tap target
+- Minimum text size
+- Viewing distance
+- Touch-only constraints
 
 The usable area is calculated after safe-area insets.
 
-Step 3 — Determine composition from geometry
+### Step 3 — Determine composition from geometry
 
 The resolver examines the aspect ratio and available dimensions.
 
@@ -134,88 +109,66 @@ if (surface === "mobile") {
 
 The same resolver is used for every surface.
 
-Step 4 — Calculate element sizes
+### Step 4 — Calculate element sizes
 
 Preferred and minimum dimensions are considered.
 
 The resolver attempts to use preferred dimensions while ensuring:
 
-elements remain inside the usable area
+- Elements remain inside the usable area.
+- Minimum sizes are respected where possible.
+- Buttons respect minimum tap-target constraints.
+- Text respects minimum text-size constraints.
+- Higher-priority elements are protected.
 
-minimum sizes are respected where possible
+### Step 5 — Position elements
 
-buttons respect minimum tap-target constraints
-
-text respects minimum text-size constraints
-
-higher-priority elements are protected
-
-Step 5 — Position elements
-
-The resolver calculates:
-
-x
-y
-width
-height
-
-for each resolved element.
+The resolver calculates x, y, width, and height for each resolved element.
 
 The renderer consumes these values instead of deciding the layout.
 
-Step 6 — Validate constraints
+### Step 6 — Validate constraints
 
 The resolver checks:
 
-surface bounds
+- Surface bounds
+- Safe-area bounds
+- Element sizes
+- Element collisions
+- Required content
+- Interaction constraints
 
-safe-area bounds
+Elements that would overlap or leave the valid surface are rejected or degraded instead of being allowed to clip.
 
-element sizes
-
-element collisions
-
-required content
-
-interaction constraints
-
-Elements that would overlap or leave the valid surface are rejected/degraded instead of being allowed to clip.
-
-Priority and Degradation
+## Priority and Degradation
 
 Priority controls what happens when there is not enough space.
 
 Example:
 
-Priority 1
-  Headline
-  Product image
+Priority 1:
+- Headline
+- Product image
 
-Priority 2
-  CTA
-  Price
+Priority 2:
+- CTA
+- Price
 
-Priority 3
-  Logo
+Priority 3:
+- Logo
 
 When space becomes insufficient:
 
 Available space decreases
-          |
-          v
-Lower-priority content is affected first
-          |
-          v
-Branding/secondary content can be removed
-          |
-          v
-Primary content remains protected
+→ Lower-priority content is affected first
+→ Branding/secondary content can be removed
+→ Primary content remains protected
 
-The goal is graceful degradation rather than overlap, clipping, or overflow.
+The goal is graceful degradation rather than overlap, clipping, overflow, or removing important content before optional content.
 
 The compact stress-test surface demonstrates this behavior.
 
-TypeScript Design
+## TypeScript Design
 
 Shared types are defined in:
 
@@ -252,48 +205,35 @@ export interface ResolvedLayout {
 
 This makes the specification, constraint resolution, and rendering contracts explicit and allows TypeScript to catch invalid values during development.
 
-Resolution Flow
+## Resolution Flow
 
 Ad Spec
-   +
++
 Surface Profile
-   |
-   v
+↓
 Constraint Resolver
-   |
-   v
+↓
 Resolved Layout
-   |
-   v
+↓
 Renderer
 
 More specifically:
 
 src/spec.ts
-     |
-     v
-   AdSpec
-     |
-     +------------------+
-     |                  |
-     v                  v
-Surface Profile     Constraints
-     |                  |
-     +--------+---------+
-              |
-              v
-       src/resolver.ts
-              |
-              v
-       ResolvedLayout
-              |
-              v
-     src/render-dom.tsx
-              |
-              v
-         Browser DOM
+↓
+AdSpec
+↓
+Surface Profile + Constraints
+↓
+src/resolver.ts
+↓
+ResolvedLayout
+↓
+src/render-dom.tsx
+↓
+Browser DOM
 
-Architecture
+## Architecture
 
 src/
 ├── types/
@@ -307,39 +247,41 @@ src/
 ├── main.tsx
 └── index.css
 
-spec.ts
+### spec.ts
 
 Defines the advertisement once.
 
-surfaces.ts
+### surfaces.ts
 
 Defines surface dimensions and constraints.
 
-resolver.ts
+### resolver.ts
 
 Contains the framework-independent layout-resolution algorithm.
 
-layout-utils.ts
+### layout-utils.ts
 
 Contains geometry helpers such as collision and bounds checks.
 
-render-dom.tsx
+### render-dom.tsx
 
 Renders the resolved layout.
 
-App.tsx
+### App.tsx
 
-Provides the demo interface and surface picker.
+Provides the demonstration interface and surface picker.
 
-index.css
+### index.css
 
-Controls visual presentation. CSS does not decide which layout is selected.
+Controls visual presentation.
 
-Adding a New Surface
+CSS does not decide which layout is selected.
+
+## Adding a New Surface
 
 A new surface can be represented by another SurfaceProfile.
 
-For example:
+Example:
 
 {
   id: "new-surface",
@@ -358,58 +300,32 @@ For example:
 The existing resolver can process it without creating a new hardcoded layout:
 
 New Surface
-    |
-    v
+↓
 resolveLayout(adSpec, newSurface)
-    |
-    v
+↓
 Resolved Layout
 
-Known Limitations
+## Known Limitations
 
-No animation or transition between surfaces.
+- No animation or transition between surfaces.
+- Fixed element type set: text, image, and button.
+- Text measurement is approximated rather than measured from the browser before placement.
+- Text wrapping/truncation is not fully text-measurement-aware.
+- The resolver is a priority-ordered greedy algorithm rather than a full linear-programming solver.
+- The demo uses a DOM renderer; a Canvas renderer is not included.
+- Advanced broadcast safe zones and print-bleed constraints are not implemented.
 
-Fixed element type set: text, image, and button.
+## Evaluation Criteria
 
-Text measurement is approximated rather than measured from the browser before placement.
-
-Text wrapping/truncation is not fully text-measurement-aware.
-
-The resolver is a priority-ordered greedy algorithm rather than a full linear-programming solver.
-
-The demo uses a DOM renderer; a Canvas renderer is not included.
-
-Advanced broadcast safe zones and print-bleed constraints are not implemented.
-
-Evaluation Criteria
-
-Area
-
-Weight
-
-Constraint resolution algorithm
-
-35%
-
-Layout correctness across surfaces
-
-25%
-
-TypeScript & architecture
-
-20%
-
-Example application
-
-10%
-
-Code quality
-
-10%
+Constraint resolution algorithm — 35%
+Layout correctness across surfaces — 25%
+TypeScript & architecture — 20%
+Example application — 10%
+Code quality — 10%
 
 The implementation prioritizes the resolver and correctness rather than visual styling alone.
 
-What This Implementation Avoids
+## What This Implementation Avoids
 
 The project does not use hardcoded surface-specific coordinate maps such as:
 
@@ -421,70 +337,58 @@ It also does not rely on CSS media queries to make the actual layout decisions.
 
 The TypeScript resolver determines:
 
-visibility
-
-position
-
-size
-
-priority/degradation
-
-constraint validation
+- Visibility
+- Position
+- Size
+- Priority/degradation
+- Constraint validation
 
 CSS is used for final rendering and presentation.
 
-Timeline and Submission
+## Timeline and Submission
 
-Time limit
+Timeline:
 
 3–5 days.
 
-Submission
+Submission:
 
 GitHub repository.
 
-Optional
+Optional:
 
 A deployed demo can be provided for faster review.
 
-Bonus Opportunities
+## Bonus Opportunities
 
 Possible future extensions:
 
-Fifth unknown surface provided during the interview.
+1. Fifth unknown surface provided during the interview.
+2. Smooth animated transition between resolved layouts.
+3. Browser-based text measurement.
+4. Canvas renderer sharing the same resolver.
+5. Accessibility constraints such as contrast and tap-target validation.
+6. Broadcast-safe-area and print-bleed constraints.
 
-Smooth animated transition between resolved layouts.
+## Live Interview Expectations
 
-Browser-based text measurement.
-
-Canvas renderer sharing the same resolver.
-
-Accessibility constraints such as contrast and tap-target validation.
-
-Broadcast-safe-area and print-bleed constraints.
-
-Live Interview Expectations
-
-1. Demo the same spec across all required surfaces
+### 1. Demo the same spec across all required surfaces
 
 Demonstrate:
 
 Mobile Portrait
-      |
-      v
+↓
 Mobile Landscape
-      |
-      v
+↓
 Broadcast Lower Third
-      |
-      v
+↓
 Square Retail Kiosk
 
 Explain that the advertisement specification remains unchanged.
 
 Only the surface profile changes.
 
-2. Introduce a new surface
+### 2. Introduce a new surface
 
 Create a new SurfaceProfile during the interview.
 
@@ -499,76 +403,61 @@ Then pass it to the existing resolver.
 
 The key explanation is:
 
-A new surface does not require another hardcoded layout. The resolver receives its dimensions and constraints and derives the layout using the same algorithm.
+"A new surface does not require another hardcoded layout. The resolver receives its dimensions and constraints and derives the layout using the same algorithm."
 
-3. Explain priority/degradation step by step
+### 3. Explain priority/degradation step by step
 
-Explain:
+"Every element has a priority. Priority 1 content is protected first. When available space becomes insufficient, the resolver validates the preferred placement and degrades lower-priority content before compromising higher-priority content. Optional branding can disappear before primary content."
 
-Every element has a priority. Priority 1 content is protected first. When available space becomes insufficient, the resolver validates the preferred placement and degrades lower-priority content before compromising higher-priority content. Optional branding can disappear before primary content.
-
-4. Explain why an element has its position
+### 4. Explain why an element has its position
 
 Walk through:
 
 Surface dimensions
-       |
-       v
+↓
 Safe area
-       |
-       v
+↓
 Available space
-       |
-       v
+↓
 Element priority
-       |
-       v
+↓
 Preferred/minimum size
-       |
-       v
+↓
 Collision and bounds validation
-       |
-       v
+↓
 Final x/y/width/height
 
 For example:
 
-The CTA is placed in the available action region because it has a defined action priority and minimum tap-target requirement. The resolver checks that its rectangle stays inside the safe area and does not collide with higher-priority content.
+"The CTA is placed in the available action region because it has a defined action priority and minimum tap-target requirement. The resolver checks that its rectangle stays inside the safe area and does not collide with higher-priority content."
 
-5. Discuss how the system can be extended
+### 5. Discuss how the system can be extended
 
 For broadcast:
 
 Surface
-   |
-   v
+↓
 Broadcast safe area
-   |
-   v
+↓
 Minimum readable text size
-   |
-   v
+↓
 Resolver
 
 For print:
 
 Surface
-   |
-   v
+↓
 Bleed area
-   |
-   v
+↓
 Trim area
-   |
-   v
+↓
 Safe content area
-   |
-   v
+↓
 Resolver
 
 The same separation of specification, constraints, resolver, and renderer can support these extensions.
 
-Time Spent
+## Time Spent
 
 Enter the actual time spent before submitting.
 
@@ -576,25 +465,26 @@ Example:
 
 Approximately 4 days.
 
-AI Disclosure
+Replace this with your actual time spent.
+
+## AI Disclosure
 
 AI tools were used during development for assistance with project structure, implementation ideas, documentation, and debugging.
 
-The final implementation should be reviewed and understood by the author before submission.
+The final implementation should be reviewed and understood by the author.
 
-Final Project Summary
+## Final Project Summary
 
 ONE AD SPECIFICATION
-        +
++
 SURFACE CONSTRAINTS
-        |
-        v
+↓
 GENERIC CONSTRAINT RESOLVER
-        |
-        v
+↓
 VALID RESOLVED LAYOUT
-        |
-        v
+↓
 DOM RENDERER
 
-The key distinction is that the project does not maintain four independent advertisement designs. It maintains one specification and one resolution algorithm that adapts the content to different surfaces while respecting constraints and priority.
+The key distinction is that the project does not maintain four independent advertisement designs.
+
+It maintains one specification and one resolution algorithm that adapts the content to different surfaces while respecting constraints and priority.
