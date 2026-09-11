@@ -2,28 +2,26 @@
 
 ## Overview
 
-This project implements a constraint-based adaptive layout engine for advertisements.
-
-The engine accepts one declarative advertisement specification and a surface profile containing real constraints. It resolves the advertisement into a valid layout for that surface and renders the result using the DOM.
-
-The same advertisement is adapted to Mobile Portrait, Mobile Landscape, Broadcast Lower Third, and Square Retail Kiosk.
-
-The TypeScript resolver calculates the layout. Separate hardcoded layouts and CSS breakpoints are not used as the layout engine.
+This project implements a constraint-based adaptive layout engine for advertisements.The engine accepts one declarative advertisement specification and a surface profile containing real constraints. It resolves the advertisement into a valid layout for that surface and renders the result using the DOM.The same advertisement is adapted to Mobile Portrait, Mobile Landscape, Broadcast Lower Third, and Square Retail Kiosk.The TypeScript resolver calculates the layout. Separate hardcoded layouts and CSS breakpoints are not used as the layout engine.
 
 ## Setup Instructions
 
-Prerequisites:
+## Prerequisites:
 - Node.js 18+
 - npm
 - Git
 
-Install dependencies:
+## Install dependencies:
 
 npm install
 
-Run the demo:
+## Run the demo:
 
 npm run dev
+
+## Deployed
+
+https://adaptive-layout-two.vercel.app/
 
 Open the local URL shown by Vite, normally:
 
@@ -351,9 +349,6 @@ GitHub repository
 
 https://github.com/Dhanushini-S21/Adaptive-Layout-Engine
 
-Deployed:
-
-https://adaptive-layout-two.vercel.app/
 
 
 ## AI Disclosure
