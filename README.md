@@ -347,7 +347,9 @@ CSS is used for final rendering and presentation.
 
 ## Submission:
 
-GitHub repository.
+GitHub repository
+
+https://github.com/Dhanushini-S21/Adaptive-Layout-Engine
 
 Optional:
 
