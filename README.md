@@ -345,13 +345,7 @@ The TypeScript resolver determines:
 
 CSS is used for final rendering and presentation.
 
-## Timeline and Submission
-
-Timeline:
-
-3–5 days.
-
-Submission:
+## Submission:
 
 GitHub repository.
 
@@ -359,113 +353,6 @@ Optional:
 
 A deployed demo can be provided for faster review.
 
-## Bonus Opportunities
-
-Possible future extensions:
-
-1. Fifth unknown surface provided during the interview.
-2. Smooth animated transition between resolved layouts.
-3. Browser-based text measurement.
-4. Canvas renderer sharing the same resolver.
-5. Accessibility constraints such as contrast and tap-target validation.
-6. Broadcast-safe-area and print-bleed constraints.
-
-## Live Interview Expectations
-
-### 1. Demo the same spec across all required surfaces
-
-Demonstrate:
-
-Mobile Portrait
-↓
-Mobile Landscape
-↓
-Broadcast Lower Third
-↓
-Square Retail Kiosk
-
-Explain that the advertisement specification remains unchanged.
-
-Only the surface profile changes.
-
-### 2. Introduce a new surface
-
-Create a new SurfaceProfile during the interview.
-
-Example:
-
-width: 800
-height: 400
-safeArea: 20px
-minTextSize: 24px
-
-Then pass it to the existing resolver.
-
-The key explanation is:
-
-"A new surface does not require another hardcoded layout. The resolver receives its dimensions and constraints and derives the layout using the same algorithm."
-
-### 3. Explain priority/degradation step by step
-
-"Every element has a priority. Priority 1 content is protected first. When available space becomes insufficient, the resolver validates the preferred placement and degrades lower-priority content before compromising higher-priority content. Optional branding can disappear before primary content."
-
-### 4. Explain why an element has its position
-
-Walk through:
-
-Surface dimensions
-↓
-Safe area
-↓
-Available space
-↓
-Element priority
-↓
-Preferred/minimum size
-↓
-Collision and bounds validation
-↓
-Final x/y/width/height
-
-For example:
-
-"The CTA is placed in the available action region because it has a defined action priority and minimum tap-target requirement. The resolver checks that its rectangle stays inside the safe area and does not collide with higher-priority content."
-
-### 5. Discuss how the system can be extended
-
-For broadcast:
-
-Surface
-↓
-Broadcast safe area
-↓
-Minimum readable text size
-↓
-Resolver
-
-For print:
-
-Surface
-↓
-Bleed area
-↓
-Trim area
-↓
-Safe content area
-↓
-Resolver
-
-The same separation of specification, constraints, resolver, and renderer can support these extensions.
-
-## Time Spent
-
-Enter the actual time spent before submitting.
-
-Example:
-
-Approximately 4 days.
-
-Replace this with your actual time spent.
 
 ## AI Disclosure
 
